@@ -79,9 +79,21 @@ contract SafeMath {
 }
 
 
-abstract contract IPIEXInterface {
-    function CreateOption (address to, address[] memory path, uint32 expiration) virtual external;
-    function WithdrawAssets (address _option, address to) virtual external;
-    function ExecuteOption (address _option, address to) virtual external;
-    function GetOptionData (address _option) virtual external view;
+interface IPIEXCreatorInterface {
+    function CreateOption (address to, address[] memory path, uint32 expiration) external;
+    // function WithdrawAssets (address _option, address to) external;
+    // function ExecuteOption (address _option, address to) external;
+    // function GetOptionData (address _option) external view;
+}
+
+contract PIEXCreator is IPIEXCreatorInterface, SafeMath, Ownable {
+    mapping(bytes32 => address) public options;
+    address public stakingToken;
+    constructor(address _token) public {
+           stakingToken = _token;
+    }
+
+    function CreateOption (address to, address[] memory path, uint32 expiration) external{
+          require(expiration > block.timestamp, 'Expiration date must be larger than now');
+    }
 }
