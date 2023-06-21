@@ -1,0 +1,73 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "to",
+						"type": "address"
+					},
+					{
+						"internalType": "address[]",
+						"name": "path",
+						"type": "address[]"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountOut",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint32",
+						"name": "expiration",
+						"type": "uint32"
+					}
+				],
+				"name": "CreatePoolOption",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/creator.sol": "IPIEXCreatorInterface"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/creator.sol": {
+			"keccak256": "0x88e64f56407317aa4bc6b27f097f8409d6e387864b47bed8096a297cf119a67e",
+			"urls": [
+				"bzz-raw://37e7f38643760d7b471cb45c08c189e3de4d3899f2d20d6ad028affa18c9a40a",
+				"dweb:/ipfs/QmXo2gLnNNCnt6A6BPmiNTbM7ysr5GgdUkwjqg8vjUMgZV"
+			]
+		}
+	},
+	"version": 1
+}

@@ -1,12 +1,42 @@
 pragma solidity ^0.8.4;
 
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+abstract contract ERC20Interface {
+    function totalSupply() public virtual view returns (uint);
+    function balanceOf(address tokenOwner) public virtual  view returns (uint balance);
+    function allowance(address tokenOwner, address spender) public virtual  view returns (uint remaining);
+    function transfer(address to, uint tokens) public virtual  returns (bool success);
+    function approve(address spender, uint tokens) public virtual  returns (bool success);
+    function transferFrom(address from, address to, uint tokens) public virtual  returns (bool success);
+
+    event Transfer(address indexed from, address indexed to, uint tokens);
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+}
+
+library TransferHelper {
+    function safeApprove(address token, address to, uint value) internal {
+        // bytes4(keccak256(bytes('approve(address,uint256)')));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x095ea7b3, to, value));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: APPROVE_FAILED');
     }
 
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
+    function safeTransfer(address token, address to, uint value) internal {
+        // bytes4(keccak256(bytes('transfer(address,uint256)')));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0xa9059cbb, to, value));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: TRANSFER_FAILED');
+    }
+
+    function safeTransferFrom(address token, address from, address to, uint value) internal {
+        // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: TRANSFER_FROM_FAILED');
+    }
+
+    function safeTransferETH(address to, uint value) internal {
+        (bool success,) = to.call{value:value}(new bytes(0));
+        require(success, 'TransferHelper: ETH_TRANSFER_FAILED');
     }
 }
 
@@ -79,21 +109,47 @@ contract SafeMath {
 }
 
 
-interface IPIEXCreatorInterface {
-    function CreateOption (address to, address[] memory path, uint32 expiration) external;
-    // function WithdrawAssets (address _option, address to) external;
-    // function ExecuteOption (address _option, address to) external;
-    // function GetOptionData (address _option) external view;
-}
+contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
+    using Counters for Counters.Counter;
 
-contract PIEXCreator is IPIEXCreatorInterface, SafeMath, Ownable {
-    mapping(bytes32 => address) public options;
-    address public stakingToken;
-    constructor(address _token) public {
-           stakingToken = _token;
+    uint256 private hash = 0;
+
+    struct OptionParams {
+        string pairName;
+        address[] path;
+        uint256[] ratio;
+        uint32 expiration;
     }
 
-    function CreateOption (address to, address[] memory path, uint32 expiration) external{
-          require(expiration > block.timestamp, 'Expiration date must be larger than now');
+    Counters.Counter public _tokenIdCounter;
+    mapping(uint256 => OptionParams) private _params;
+
+    constructor() ERC721(
+        "PIEXPersonalOptions", "OPTIONS"
+        ) {
+        }
+
+
+    function GetTotalOptionCount () public view returns (uint) {
+        return _tokenIdCounter.current();
     }
+
+
+    function safeMint(address to, 
+                      address[] memory _path,
+                      uint256[] memory _ratio,
+                      uint32 expiration
+                      ) public {
+
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
+        _params[tokenId] = OptionParams(
+            "new",
+            _path,
+            _ratio,
+            expiration
+        );
+    }
+
 }
