@@ -115,9 +115,11 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
     uint256 private hash = 0;
 
     struct OptionParams {
+        address creator;
         string pairName;
-        address[] path;
-        uint256[] ratio;
+        address[2] path;
+        uint256[2] ratio;
+        uint[2] balances;
         uint32 expiration;
     }
 
@@ -136,20 +138,37 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
 
 
     function safeMint(address to, 
-                      address[] memory _path,
-                      uint256[] memory _ratio,
+                      address[2] memory _path,
+                      uint256[2] memory _ratio,
                       uint32 expiration
                       ) public {
-
+        require(expiration > block.timestamp, "Expiration date must be larger than now");
+        require(_ratio[0] > 0 && _ratio[1] > 0, "Values can not be zero");
         uint256 tokenId = _tokenIdCounter.current();
+        TransferHelper.safeTransferFrom(_path[0], msg.sender, address(this), _ratio[0]);
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
+        uint[2] memory _balances = [_ratio[0], 0];
         _params[tokenId] = OptionParams(
+            msg.sender,
             "new",
             _path,
             _ratio,
+            _balances,
             expiration
         );
+    }
+
+    function GetOptionData (uint _tokenId) external view returns (OptionParams memory) {
+        return _params[_tokenId];
+    }
+
+    function IsOptionExecuted (uint _tokenId) external view returns (bool) {
+        if (_params[_tokenId].ratio[0] == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }
