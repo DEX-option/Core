@@ -108,27 +108,30 @@ contract SafeMath {
     }
 }
 
-
 contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
     using Counters for Counters.Counter;
+    address public RevenueReceiver;
 
     uint256 private hash = 0;
 
     struct OptionParams {
         address creator;
-        string pairName;
         address[2] path;
         uint256[2] ratio;
         uint[2] balances;
-        uint32 expiration;
+        uint256 creation;
+        uint256 expiration;
     }
 
     Counters.Counter public _tokenIdCounter;
     mapping(uint256 => OptionParams) private _params;
 
-    constructor() ERC721(
+    constructor(
+       address _recevier
+    ) ERC721(
         "PIEXPersonalOptions", "OPTIONS"
         ) {
+            RevenueReceiver = _recevier;
         }
 
 
@@ -143,7 +146,7 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
                       uint32 expiration
                       ) public {
         require(expiration > block.timestamp, "Expiration date must be larger than now");
-        require(_ratio[0] > 0 && _ratio[1] > 0, "Values can not be zero");
+        require(_ratio[0] > 10000 && _ratio[1] > 10000, "Values can not be smaller than 10000 wei");
         uint256 tokenId = _tokenIdCounter.current();
         TransferHelper.safeTransferFrom(_path[0], msg.sender, address(this), _ratio[0]);
         _tokenIdCounter.increment();
@@ -151,10 +154,10 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
         uint[2] memory _balances = [_ratio[0], 0];
         _params[tokenId] = OptionParams(
             msg.sender,
-            "new",
             _path,
             _ratio,
             _balances,
+            block.timestamp,
             expiration
         );
     }
@@ -164,11 +167,36 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
     }
 
     function IsOptionExecuted (uint _tokenId) external view returns (bool) {
-        if (_params[_tokenId].ratio[0] == 0) {
+        if (_params[_tokenId].balances[0] == 0) {
             return true;
         } else {
             return false;
         }
+    }
+
+    function ExecuteOption (uint _tokenId) external {
+        require(this.ownerOf(_tokenId) == msg.sender, "You need to be an option owner to execute");
+        require(_params[_tokenId].expiration > block.timestamp, "Option is already expired");
+        require(!this.IsOptionExecuted(_tokenId), "Option is already executed");
+        TransferHelper.safeTransferFrom(_params[_tokenId].path[1], 
+        msg.sender, address(this), _params[_tokenId].ratio[1]);
+        TransferHelper.safeTransfer(_params[_tokenId].path[0], 
+        msg.sender, _params[_tokenId].ratio[0]);
+        _params[_tokenId].balances = [0, _params[_tokenId].ratio[1]];
+    }
+
+    function WithdrawBasicAssets (uint _tokenId, address to) external {
+        require(_params[_tokenId].creator == msg.sender, "Caller is not the option creator");
+        require(block.timestamp > _params[_tokenId].expiration, "Option is still not expired");
+        if (_params[_tokenId].ratio[0] > 0) {
+            TransferHelper.safeTransfer(_params[_tokenId].path[0], 
+            to, _params[_tokenId].ratio[0]);
+        }
+        if (_params[_tokenId].ratio[1] > 0) {
+            TransferHelper.safeTransfer(_params[_tokenId].path[1], 
+            to, _params[_tokenId].ratio[1]);
+        }
+        _params[_tokenId].balances = [0, 0];
     }
 
 }

@@ -1,0 +1,64 @@
+{
+	"compiler": {
+		"version": "0.7.6+commit.7338295f"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "tokenAddress",
+						"type": "address"
+					}
+				],
+				"name": "getTokenSymbol",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/symbol.sol": "TokenSymbol"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/symbol.sol": {
+			"keccak256": "0x4328210ccd688b742efe3e52404cc1f6170c7bbdcf99d572b6b39873c0f95688",
+			"urls": [
+				"bzz-raw://0d8a2b0943cd5e68099b8c9cdc0f6cc081fe427b15bffa75360e5a31eb88e9bd",
+				"dweb:/ipfs/QmT6zxj9YWqQraRfaoSe7eDbtDAjYW6HWhvbeXuYAfKEc5"
+			]
+		}
+	},
+	"version": 1
+}
