@@ -110,7 +110,7 @@ contract SafeMath {
 
 contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
     using Counters for Counters.Counter;
-    address public RevenueReceiver;
+    address public feeTo;
 
     uint256 private hash = 0;
 
@@ -125,18 +125,23 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
 
     Counters.Counter public _tokenIdCounter;
     mapping(uint256 => OptionParams) private _params;
+    mapping(address => uint256) private _fees;
 
     constructor(
-       address _recevier
+       address _feeTo
     ) ERC721(
         "PIEXPersonalOptions", "OPTIONS"
         ) {
-            RevenueReceiver = _recevier;
+            feeTo = _feeTo;
         }
 
 
     function GetTotalOptionCount () public view returns (uint) {
         return _tokenIdCounter.current();
+    }
+
+    function SetupFeeTo ( address _feeTo ) external onlyOwner {
+        feeTo = _feeTo;
     }
 
 
@@ -149,13 +154,16 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
         require(_ratio[0] > 10000 && _ratio[1] > 10000, "Values can not be smaller than 10000 wei");
         uint256 tokenId = _tokenIdCounter.current();
         TransferHelper.safeTransferFrom(_path[0], msg.sender, address(this), _ratio[0]);
+        uint startBalance = (_ratio[0] * 998) / 1000;
+        uint256 fee = (_ratio[0] * 2) / 1000;
+        _fees[_path[0]] += fee;
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
-        uint[2] memory _balances = [_ratio[0], 0];
+        uint[2] memory _balances = [startBalance, 0];
         _params[tokenId] = OptionParams(
             msg.sender,
             _path,
-            _ratio,
+            [startBalance,((_ratio[1] * 998) / 1000)],
             _balances,
             block.timestamp,
             expiration
@@ -178,25 +186,42 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
         require(this.ownerOf(_tokenId) == msg.sender, "You need to be an option owner to execute");
         require(_params[_tokenId].expiration > block.timestamp, "Option is already expired");
         require(!this.IsOptionExecuted(_tokenId), "Option is already executed");
+        uint256 AmountToPay = ((_params[_tokenId].ratio[1] * 998) / 1000);
+        uint256 fee = ((_params[_tokenId].ratio[1] * 2) / 1000);
+        _fees[_params[_tokenId].path[1]] += fee;
+
         TransferHelper.safeTransferFrom(_params[_tokenId].path[1], 
-        msg.sender, address(this), _params[_tokenId].ratio[1]);
+        msg.sender, address(this), AmountToPay);
         TransferHelper.safeTransfer(_params[_tokenId].path[0], 
         msg.sender, _params[_tokenId].ratio[0]);
-        _params[_tokenId].balances = [0, _params[_tokenId].ratio[1]];
+
+        _params[_tokenId].balances = [0, AmountToPay];
     }
 
     function WithdrawBasicAssets (uint _tokenId, address to) external {
         require(_params[_tokenId].creator == msg.sender, "Caller is not the option creator");
-        require(block.timestamp > _params[_tokenId].expiration, "Option is still not expired");
+        require(block.timestamp > _params[_tokenId].expiration || this.IsOptionExecuted(_tokenId), "Option is still not expired and not executed");
         if (_params[_tokenId].ratio[0] > 0) {
+            uint256 AmountToPay = ((_params[_tokenId].ratio[0] * 998) / 1000);
+            uint256 fee = ((_params[_tokenId].ratio[0] * 2) / 1000);
+            _fees[_params[_tokenId].path[0]] += fee;
             TransferHelper.safeTransfer(_params[_tokenId].path[0], 
-            to, _params[_tokenId].ratio[0]);
+            to, AmountToPay);
         }
         if (_params[_tokenId].ratio[1] > 0) {
+            uint256 AmountToPay = ((_params[_tokenId].ratio[1] * 998) / 1000);
+            uint256 fee = ((_params[_tokenId].ratio[1] * 2) / 1000);
+            _fees[_params[_tokenId].path[1]] += fee;
             TransferHelper.safeTransfer(_params[_tokenId].path[1], 
-            to, _params[_tokenId].ratio[1]);
+            to, AmountToPay);
         }
         _params[_tokenId].balances = [0, 0];
+    }
+
+    function WithdrawFee ( address _token ) external {
+        require(_fees[_token] > 0, "No balance to transfer");
+        TransferHelper.safeTransfer(_token, feeTo, _fees[_token]);
+        _fees[_token] = 0;
     }
 
 }

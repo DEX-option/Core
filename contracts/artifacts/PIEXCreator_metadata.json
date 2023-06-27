@@ -9,7 +9,7 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "_recevier",
+						"name": "_feeTo",
 						"type": "address"
 					}
 				],
@@ -239,16 +239,16 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
-				"name": "RevenueReceiver",
-				"outputs": [
+				"inputs": [
 					{
 						"internalType": "address",
-						"name": "",
+						"name": "_feeTo",
 						"type": "address"
 					}
 				],
-				"stateMutability": "view",
+				"name": "SetupFeeTo",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -265,6 +265,19 @@
 					}
 				],
 				"name": "WithdrawBasicAssets",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "WithdrawFee",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -314,6 +327,19 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "feeTo",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -917,10 +943,10 @@
 			]
 		},
 		"contracts/creator.sol": {
-			"keccak256": "0x4189d04a89bb0f6f63c9cf8a53b82fb248e1b5bf97cce05be1ef2e71bcb5e59c",
+			"keccak256": "0x58f3a26e944491a00569e6eb5acd782009d7f63688e964db22b431be67e43a40",
 			"urls": [
-				"bzz-raw://1ca9a0154dca647f808b91f4d45ccc5434e72d8daf2bb4aae205497a95f50d8d",
-				"dweb:/ipfs/QmTNS9SovNaZcv3WrqoXZjfRrJ3egSYUY57dC45aEXQvuo"
+				"bzz-raw://21db5ff8f6008a7fe27e599b691ee9948e4e3d51dfa5dd555619053f9b3580f0",
+				"dweb:/ipfs/QmZmaygj1RScYsmqA84jjPyiDsY6Yjy8hsjuv1j2rP2Qcy"
 			]
 		}
 	},
