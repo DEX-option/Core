@@ -26,7 +26,7 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
+			"enabled": true,
 			"runs": 200
 		},
 		"remappings": []
@@ -161,10 +161,10 @@
 			]
 		},
 		"contracts/creator.sol": {
-			"keccak256": "0x58f3a26e944491a00569e6eb5acd782009d7f63688e964db22b431be67e43a40",
+			"keccak256": "0xec1924cf2c453bc57d84842a870ce82cb42b8fed107a30a86b32689ca22d6ca7",
 			"urls": [
-				"bzz-raw://21db5ff8f6008a7fe27e599b691ee9948e4e3d51dfa5dd555619053f9b3580f0",
-				"dweb:/ipfs/QmZmaygj1RScYsmqA84jjPyiDsY6Yjy8hsjuv1j2rP2Qcy"
+				"bzz-raw://c7b0a2b071f7786a2d53467b5be6dfbffa56e7e1f3a60a22c572bd54f9aaa016",
+				"dweb:/ipfs/QmT5rPPL9MTC2Uu3ZrqhBmMwyvGiMk2RWyQCfiJFjVhUUd"
 			]
 		}
 	},

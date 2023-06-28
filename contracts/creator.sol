@@ -186,7 +186,7 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
         require(this.ownerOf(_tokenId) == msg.sender, "You need to be an option owner to execute");
         require(_params[_tokenId].expiration > block.timestamp, "Option is already expired");
         require(!this.IsOptionExecuted(_tokenId), "Option is already executed");
-        uint256 AmountToPay = ((_params[_tokenId].ratio[1] * 998) / 1000);
+        uint256 AmountToPay = ((_params[_tokenId].ratio[1] * 1002) / 1000);
         uint256 fee = ((_params[_tokenId].ratio[1] * 2) / 1000);
         _fees[_params[_tokenId].path[1]] += fee;
 
@@ -195,22 +195,22 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
         TransferHelper.safeTransfer(_params[_tokenId].path[0], 
         msg.sender, _params[_tokenId].ratio[0]);
 
-        _params[_tokenId].balances = [0, AmountToPay];
+        _params[_tokenId].balances = [0, _params[_tokenId].ratio[1]];
     }
 
     function WithdrawBasicAssets (uint _tokenId, address to) external {
         require(_params[_tokenId].creator == msg.sender, "Caller is not the option creator");
         require(block.timestamp > _params[_tokenId].expiration || this.IsOptionExecuted(_tokenId), "Option is still not expired and not executed");
-        if (_params[_tokenId].ratio[0] > 0) {
-            uint256 AmountToPay = ((_params[_tokenId].ratio[0] * 998) / 1000);
-            uint256 fee = ((_params[_tokenId].ratio[0] * 2) / 1000);
+        if (_params[_tokenId].balances[0] > 0) {
+            uint256 AmountToPay = ((_params[_tokenId].balances[0] * 998) / 1000);
+            uint256 fee = ((_params[_tokenId].balances[0] * 2) / 1000);
             _fees[_params[_tokenId].path[0]] += fee;
             TransferHelper.safeTransfer(_params[_tokenId].path[0], 
             to, AmountToPay);
         }
-        if (_params[_tokenId].ratio[1] > 0) {
-            uint256 AmountToPay = ((_params[_tokenId].ratio[1] * 998) / 1000);
-            uint256 fee = ((_params[_tokenId].ratio[1] * 2) / 1000);
+        if (_params[_tokenId].balances[1] > 0) {
+            uint256 AmountToPay = ((_params[_tokenId].balances[1] * 998) / 1000);
+            uint256 fee = ((_params[_tokenId].balances[1] * 2) / 1000);
             _fees[_params[_tokenId].path[1]] += fee;
             TransferHelper.safeTransfer(_params[_tokenId].path[1], 
             to, AmountToPay);
