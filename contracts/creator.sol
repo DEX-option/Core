@@ -111,6 +111,7 @@ contract SafeMath {
 contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
     using Counters for Counters.Counter;
     address public feeTo;
+    string public ratePicture = "";
 
     uint256 private hash = 0;
 
@@ -144,6 +145,9 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
         feeTo = _feeTo;
     }
 
+    function SetupRatePicture ( string memory _uri ) external onlyOwner {
+        ratePicture = _uri;
+    }
 
     function safeMint(address to, 
                       address[2] memory _path,
@@ -168,6 +172,7 @@ contract PIEXCreator is ERC721URIStorage, SafeMath, Ownable {
             block.timestamp,
             expiration
         );
+        _setTokenURI(tokenId, ratePicture);
     }
 
     function GetOptionData (uint _tokenId) external view returns (OptionParams memory) {
